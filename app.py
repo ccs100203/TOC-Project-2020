@@ -54,6 +54,7 @@ parser = WebhookParser(channel_secret)
 
 @app.route("/callback", methods=["POST"])
 def callback():
+    print("qweqweqwe")
     signature = request.headers["X-Line-Signature"]
     # get request body as text
     body = request.get_data(as_text=True)
@@ -116,7 +117,7 @@ def show_fsm():
 
 
 if __name__ == "__main__":
-    # port = os.environ.get("PORT", 8000)
-    # app.run(host="0.0.0.0", port=port, debug=True)
-    PORT = os.environ['PORT']
-    app.run(host="0.0.0.0", port=PORT, debug=True)
+    port = os.environ.get("PORT", 8000)
+    app.run(host="0.0.0.0", port=port, debug=True)
+    # PORT = os.environ['PORT']
+    # app.run(host="0.0.0.0", port=PORT, debug=True)
