@@ -14,21 +14,33 @@ load_dotenv()
 
 
 machine = TocMachine(
-    states=["user", "state1", "state2"],
+    states=["user", 'menu', 'walk', 'bike', 'roadside', 'street', 'handsome', 'noRespon', 'waitsign', 'rush'
+            ,'direction', 'straight', 'left', 'road', 'pavement', 'sandwich', 'omelet', 'kaohsiung', 'tainan', 'remind', 'pickup', 'noRemind'],
     transitions=[
-        {
-            "trigger": "advance",
-            "source": "user",
-            "dest": "state1",
-            "conditions": "is_going_to_state1",
-        },
-        {
-            "trigger": "advance",
-            "source": "user",
-            "dest": "state2",
-            "conditions": "is_going_to_state2",
-        },
-        {"trigger": "go_back", "source": ["state1", "state2"], "dest": "user"},
+        {"trigger": "restart",   "source": ['walk', 'bike', 'roadside', 'street', 'handsome', 'noRespon', 'waitsign', 'rush'
+            ,'direction', 'straight', 'left', 'road', 'pavement', 'sandwich', 'omelet', 'kaohsiung', 'tainan', 'remind', 'pickup', 'noRemind'],   "dest": "menu",},
+        {"trigger": "happy",   "source": ['noRemind', 'remind'],   "dest": "user",},
+        {"trigger": "advance",   "source": "user",   "dest": "menu",   "conditions": "is_going_to_menu",},
+        {"trigger": "advance",   "source": "menu",   "dest": "walk",   "conditions": "is_going_to_walk",},
+        {"trigger": "advance",   "source": "menu",   "dest": "bike",   "conditions": "is_going_to_bike",},
+        {"trigger": "advance",   "source": ["walk",'straight'],   "dest": "roadside",   "conditions": "is_going_to_roadside",},
+        {"trigger": "advance",   "source": "walk",   "dest": "street",   "conditions": "is_going_to_street",},
+        {"trigger": "advance",   "source": "street",   "dest": "handsome",   "conditions": "is_going_to_handsome",},
+        {"trigger": "advance",   "source": "street",   "dest": "noRespon",   "conditions": "is_going_to_noRespon",},
+        {"trigger": "advance",   "source": "noRespon",   "dest": "waitsign",   "conditions": "is_going_to_waitsign",},
+        {"trigger": "advance",   "source": "noRespon",   "dest": "rush",   "conditions": "is_going_to_rush",},
+        {"trigger": "advance",   "source": "bike",   "dest": "straight",   "conditions": "is_going_to_straight",},
+        {"trigger": "advance",   "source": "bike",   "dest": "left",   "conditions": "is_going_to_left",},
+        {"trigger": "advance",   "source": "straight",   "dest": "road",   "conditions": "is_going_to_road",},
+        {"trigger": "advance",   "source": "straight",   "dest": "pavement",   "conditions": "is_going_to_pavement",},
+        {"trigger": "advance",   "source": "road",   "dest": "sandwich",   "conditions": "is_going_to_sandwich",},
+        {"trigger": "advance",   "source": "road",   "dest": "omelet",   "conditions": "is_going_to_omelet",},
+        {"trigger": "advance",   "source": "sandwich",   "dest": "kaohsiung",   "conditions": "is_going_to_kaohsiung",},
+        {"trigger": "advance",   "source": "sandwich",   "dest": "tainan",   "conditions": "is_going_to_tainan",},
+        {"trigger": "advance",   "source": "tainan",   "dest": "remind",   "conditions": "is_going_to_remind",},
+        {"trigger": "advance",   "source": "tainan",   "dest": "pickup",   "conditions": "is_going_to_pickup",},
+        {"trigger": "advance",   "source": "tainan",   "dest": "noRemind",   "conditions": "is_going_to_noRemind",},
+        
     ],
     initial="user",
     auto_transitions=False,
@@ -54,7 +66,6 @@ parser = WebhookParser(channel_secret)
 
 @app.route("/callback", methods=["POST"])
 def callback():
-    print("qweqweqwe")
     signature = request.headers["X-Line-Signature"]
     # get request body as text
     body = request.get_data(as_text=True)
@@ -102,10 +113,15 @@ def webhook_handler():
         if not isinstance(event.message.text, str):
             continue
         print(f"\nFSM STATE: {machine.state}")
-        print(f"REQUEST BODY: \n{body}")
+        # print(f"\nREQUEST BODY: \n{body}")
+        # print(f'\nid: {event.source.user_id}')
+        print(event.message.text)
         response = machine.advance(event)
-        if response == False:
-            send_text_message(event.reply_token, "Not Entering any State")
+        # if response == False:
+            # send_text_message(event.source.user_id, f"no change in: {machine.state}")
+        if response == False and machine.state == 'user':
+            send_text_message(event.reply_token, TextSendMessage(text="輸入: \"start\""))
+        
 
     return "OK"
 
@@ -119,5 +135,3 @@ def show_fsm():
 if __name__ == "__main__":
     port = os.environ.get("PORT", 8000)
     app.run(host="0.0.0.0", port=port, debug=True)
-    # PORT = os.environ['PORT']
-    # app.run(host="0.0.0.0", port=PORT, debug=True)
