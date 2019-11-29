@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request, abort, send_file
 from dotenv import load_dotenv
 from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.models import MessageEvent, TextMessage, TextSendMessage, TemplateSendMessage, ButtonsTemplate, MessageAction
 
 from fsm import TocMachine
 from utils import send_text_message
@@ -14,11 +14,13 @@ load_dotenv()
 
 
 machine = TocMachine(
-    states=["user", 'menu', 'walk', 'bike', 'roadside', 'street', 'handsome', 'noRespon', 'waitsign', 'rush'
-            ,'direction', 'straight', 'left', 'road', 'pavement', 'sandwich', 'omelet', 'kaohsiung', 'tainan', 'remind', 'pickup', 'noRemind'],
+    states=["user", 'menu', 'dead', 'walk', 'bike', 'roadside', 'street', 'handsome', 'noRespon', 'waitsign', 'rush'
+            , 'straight', 'left', 'road', 'pavement', 'sandwich', 'FFF', 'radish', 'kaohsiung', 'tainan', 'remind', 'pickup', 'noRemind'],
     transitions=[
-        {"trigger": "restart",   "source": ['walk', 'bike', 'roadside', 'street', 'handsome', 'noRespon', 'waitsign', 'rush'
-            ,'direction', 'straight', 'left', 'road', 'pavement', 'sandwich', 'omelet', 'kaohsiung', 'tainan', 'remind', 'pickup', 'noRemind'],   "dest": "menu",},
+        {"trigger": "die",   "source": ['roadside', 'handsome', 'waitsign', 'rush', 'left', 'pavement', 'radish', 'kaohsiung', 'pickup'],   "dest": "dead",},
+        {"trigger": "advance",   "source": "dead",   "dest": "menu",   "conditions": "dead_going_to_menu",},
+        {"trigger": "advance",   "source": ['menu', 'dead', 'walk', 'bike', 'roadside', 'street', 'handsome', 'noRespon', 'waitsign', 'rush'
+            , 'straight', 'left', 'road', 'pavement', 'sandwich', 'radish', 'kaohsiung', 'tainan', 'remind', 'pickup', 'noRemind'],   "dest": "user", "conditions": "is_going_to_user",},
         {"trigger": "happy",   "source": ['noRemind', 'remind'],   "dest": "user",},
         {"trigger": "advance",   "source": "user",   "dest": "menu",   "conditions": "is_going_to_menu",},
         {"trigger": "advance",   "source": "menu",   "dest": "walk",   "conditions": "is_going_to_walk",},
@@ -34,12 +36,14 @@ machine = TocMachine(
         {"trigger": "advance",   "source": "straight",   "dest": "road",   "conditions": "is_going_to_road",},
         {"trigger": "advance",   "source": "straight",   "dest": "pavement",   "conditions": "is_going_to_pavement",},
         {"trigger": "advance",   "source": "road",   "dest": "sandwich",   "conditions": "is_going_to_sandwich",},
-        {"trigger": "advance",   "source": "road",   "dest": "omelet",   "conditions": "is_going_to_omelet",},
+        {"trigger": "advance",   "source": "road",   "dest": "radish",   "conditions": "is_going_to_radish",},
         {"trigger": "advance",   "source": "sandwich",   "dest": "kaohsiung",   "conditions": "is_going_to_kaohsiung",},
         {"trigger": "advance",   "source": "sandwich",   "dest": "tainan",   "conditions": "is_going_to_tainan",},
         {"trigger": "advance",   "source": "tainan",   "dest": "remind",   "conditions": "is_going_to_remind",},
         {"trigger": "advance",   "source": "tainan",   "dest": "pickup",   "conditions": "is_going_to_pickup",},
         {"trigger": "advance",   "source": "tainan",   "dest": "noRemind",   "conditions": "is_going_to_noRemind",},
+        {"trigger": "advance",   "source": "sandwich",   "dest": "FFF",   "conditions": "is_going_to_FFF",},
+        {"trigger": "burn_fff",   "source": "FFF",   "dest": "menu",},
         
     ],
     initial="user",
@@ -117,12 +121,30 @@ def webhook_handler():
         # print(f'\nid: {event.source.user_id}')
         print(event.message.text)
         response = machine.advance(event)
-        # if response == False:
-            # send_text_message(event.source.user_id, f"no change in: {machine.state}")
-        if response == False and machine.state == 'user':
-            send_text_message(event.reply_token, TextSendMessage(text="輸入: \"start\""))
+        if response == False:
+            if machine.state == 'user':
+                button_message = TemplateSendMessage(
+                    alt_text='Button',
+                    template=ButtonsTemplate(
+                        thumbnail_image_url='https://previews.123rf.com/images/abluecup/abluecup1410/abluecup141000071/32432764-a-red-button-with-the-word-warning-on-it.jpg',
+                        title='開啟你的旅程',
+                        text='Please select',
+                        actions=[
+                            MessageAction(
+                                label='Start',
+                                text='start'
+                            ),
+                            MessageAction(
+                                label='No Start',
+                                text='start'
+                            ),
+                        ]
+                    )
+                )
+                send_text_message(event.reply_token, button_message)
+            elif event.message.text.lower() == 'now':
+                send_text_message(event.reply_token, TextSendMessage(text=f"State: {machine.state}"))
         
-
     return "OK"
 
 
