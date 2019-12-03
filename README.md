@@ -1,10 +1,10 @@
-# TOC Project 2020
+# Tainan Simulator
 
 A Line bot based on a finite state machine.
+Let you experience every shitty day in Tainan 
 
 ## Deploy
 deploy webhooks on AWS EC2.
-
 
 ## Finite State Machine
 ![fsm](./img/show-fsm.png)
@@ -76,7 +76,7 @@ The initial state is user.
 	- **Input:** 【Start】 【No Start】
 - ### noRemind
     - **Title:** True End，準時抵達教室，上課囉
-	- **Input:** 【Start】 【No Star】
+	- **Input:** 【Start】 【No Start】
 
 
 
