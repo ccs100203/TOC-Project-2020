@@ -10,9 +10,8 @@ deploy webhooks on AWS EC2.
 ![fsm](./img/show-fsm.png)
 
 ## Usage
-
+The initial state is user.<br/>
 You can click a button in every state.
-The initial state is user.
 
 - ### <font color="#a04">user</font>
     - **<font color="#ab0">Title:</font>** 開啟你的旅程
