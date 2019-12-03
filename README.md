@@ -1,159 +1,84 @@
 # TOC Project 2020
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/dc7fa47fcd809b99d087/maintainability)](https://codeclimate.com/github/NCKU-CCS/TOC-Project-2020/maintainability)
+A Line bot based on a finite state machine.
 
-[![Known Vulnerabilities](https://snyk.io/test/github/NCKU-CCS/TOC-Project-2020/badge.svg)](https://snyk.io/test/github/NCKU-CCS/TOC-Project-2020)
-
-
-Template Code for TOC Project 2020
-
-A Line bot based on a finite state machine
-
-More details in the [Slides](https://hackmd.io/@TTW/ToC-2019-Project#) and [FAQ](https://hackmd.io/s/B1Xw7E8kN)
-
-## Setup
-
-### Prerequisite
-* Python 3.6
-* Pipenv
-* Facebook Page and App
-* HTTPS Server
-
-#### Install Dependency
-```sh
-pip3 install pipenv
-
-pipenv --three
-
-pipenv install
-
-pipenv shell
-```
-
-* pygraphviz (For visualizing Finite State Machine)
-    * [Setup pygraphviz on Ubuntu](http://www.jianshu.com/p/a3da7ecc5303)
-	* [Note: macOS Install error](https://github.com/pygraphviz/pygraphviz/issues/100)
-
-
-#### Secret Data
-You should generate a `.env` file to set Environment Variables refer to our `.env.sample`.
-`LINE_CHANNEL_SECRET` and `LINE_CHANNEL_ACCESS_TOKEN` **MUST** be set to proper values.
-Otherwise, you might not be able to run your code.
-
-#### Run Locally
-You can either setup https server or using `ngrok` as a proxy.
-
-#### a. Ngrok installation
-* [ macOS, Windows, Linux](https://ngrok.com/download)
-
-or you can use Homebrew (MAC)
-```sh
-brew cask install ngrok
-```
-
-**`ngrok` would be used in the following instruction**
-
-```sh
-ngrok http 8000
-```
-
-After that, `ngrok` would generate a https URL.
-
-#### Run the sever
-
-```sh
-python3 app.py
-```
-
-#### b. Servo
-
-Or You can use [servo](http://serveo.net/) to expose local servers to the internet.
+## Deploy
+deploy webhooks on AWS EC2.
 
 
 ## Finite State Machine
 ![fsm](./img/show-fsm.png)
 
 ## Usage
-The initial state is set to `user`.
 
-Every time `user` state is triggered to `advance` to another state, it will `go_back` to `user` state after the bot replies corresponding message.
+You can click a button in every state.
+The initial state is user.
 
-* user
-	* Input: "go to state1"
-		* Reply: "I'm entering state1"
+- ### <font color="#a04">user</font>
+    - **<font color="#ab0">Title:</font>** 開啟你的旅程
+	- **Input:** 【Start】【No Start】
+- ### menu
+    - **Title:** 早上起床，發現快遲到了
+    - **Input:** 【走路】【機車】【腳踏車】
+- ### walk
+    - **Title:** 健康的走路，該走哪條呢?
+	- **Input:** 【路緣】 【騎樓】 【人行道】
+- ### roadside
+    - **Title:** 突然有卡車切進去，在台南還敢走路緣啊，人生登出
+	- **Input:** 【give up】 【restart】
+- ### street
+    - **Title:** 此時路過市集，突然有女生大喊「帥哥」\~~
+	- **Input:** 【帥爆 回頭】 【不理她】
+- ### handsome
+    - **Title:** 近女色 失敗", "結果只是個大媽叫你, 被她纏上導致遲到
+	- **Input:** 【give up】 【restart】
+- ### noRespon
+    - **Title:** 到了馬路口，遇到紅燈，看起來四周無車
+	- **Input:** 【等紅燈】 【衝過去】
+- ### waitsign
+    - **Title:** 小孩子才走路, 乖乖等紅燈，但已經遲到了
+	- **Input:** 【give up】 【restart】
+- ### rush
+    - **Title:** 加速跑過去，結果就撞車了，在台南還敢闖紅燈啊
+	- **Input:** 【give up】 【restart】
+- ### straight
+    - **Title:** 騎對了方向，再選條路吧~
+	- **Input:** 【馬路】 【騎樓】 【路緣】
+- ### left
+    - **Title:** 迷路啦，乖乖遲到吧
+	- **Input:** 【give up】 【restart】
+- ### road
+    - **Title:** 騎一騎肚子餓了，騎到早餐店，買什麼早餐?
+	- **Input:** 【現成的三明治】 【現煎的蘿蔔糕】 【現成的蛋餅】
+- ### pavement
+    - **Title:** 台南的騎樓怎麼可能是空的呢，早就推滿東西啦
+	- **Input:** 【give up】 【restart】
+- ### sandwich
+    - **Title:** 買完離開早餐店，終於快到系館了，遭遇了紅燈
+	- **Input:** 【等紅燈】 【高雄式左轉】 【台南式右轉】 【怒燒】
+- ### radish
+    - **Title:** 這裡可是台南欸!，直接撞上另一台橫向跨越馬路的車
+	- **Input:** 【give up】 【restart】
+- ### kaohsiung
+    - **Title:** 健康的走路，該走哪條呢?
+	- **Input:** 【give up】 【restart】
+- ### FFF
+    - **Title:** 成功消滅一對情侶!
+	- **Input:** 【走路】 【機車】 【腳踏車】
+- ### tainan
+    - **Title:** 到了地停前，發現旁邊的正妹東西掉了，你應該?
+	- **Input:** 【提醒他】 【撿走】 【不理她】
+- ### remind
+    - **Title:** Happy End，雖然遲到了，但得到了正妹的line
+	- **Input:** 【Start】 【No Start】
+- ### pickup
+    - **Title:** 私藏時被抓包，警察局見
+	- **Input:** 【Start】 【No Start】
+- ### noRemind
+    - **Title:** True End，準時抵達教室，上課囉
+	- **Input:** 【Start】 【No Star】
 
-	* Input: "go to state2"
-		* Reply: "I'm entering state2"
 
-## Deploy
-Setting to deploy webhooks on Heroku.
 
-### Heroku CLI installation
 
-* [macOS, Windows](https://devcenter.heroku.com/articles/heroku-cli)
 
-or you can use Homebrew (MAC)
-```sh
-brew tap heroku/brew && brew install heroku
-```
-
-or you can use Snap (Ubuntu 16+)
-```sh
-sudo snap install --classic heroku
-```
-
-### Connect to Heroku
-
-1. Register Heroku: https://signup.heroku.com
-
-2. Create Heroku project from website
-
-3. CLI Login
-
-	`heroku login`
-
-### Upload project to Heroku
-
-1. Add local project to Heroku project
-
-	heroku git:remote -a {HEROKU_APP_NAME}
-
-2. Upload project
-
-	```
-	git add .
-	git commit -m "Add code"
-	git push -f heroku master
-	```
-
-3. Set Environment - Line Messaging API Secret Keys
-
-	```
-	heroku config:set LINE_CHANNEL_SECRET=your_line_channel_secret
-	heroku config:set LINE_CHANNEL_ACCESS_TOKEN=your_line_channel_access_token
-	```
-
-4. Your Project is now running on Heroku!
-
-	url: `{HEROKU_APP_NAME}.herokuapp.com/callback`
-
-	debug command: `heroku logs --tail --app {HEROKU_APP_NAME}`
-
-5. If fail with `pygraphviz` install errors
-
-	run commands below can solve the problems
-	```
-	heroku buildpacks:set heroku/python
-	heroku buildpacks:add --index 1 heroku-community/apt
-	```
-
-	refference: https://hackmd.io/@ccw/B1Xw7E8kN?type=view#Q2-如何在-Heroku-使用-pygraphviz
-
-## Reference
-[Pipenv](https://medium.com/@chihsuan/pipenv-更簡單-更快速的-python-套件管理工具-135a47e504f4) ❤️ [@chihsuan](https://github.com/chihsuan)
-
-[TOC-Project-2019](https://github.com/winonecheng/TOC-Project-2019) ❤️ [@winonecheng](https://github.com/winonecheng)
-
-Flask Architecture ❤️ [@Sirius207](https://github.com/Sirius207)
-
-[Line line-bot-sdk-python](https://github.com/line/line-bot-sdk-python/tree/master/examples/flask-echo)
